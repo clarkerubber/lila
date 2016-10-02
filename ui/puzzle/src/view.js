@@ -5,7 +5,7 @@ var m = require('mithril');
 var puzzle = require('./puzzle');
 var xhr = require('./xhr');
 
-var historySize = 16;
+var historySize = 15;
 
 // useful in translation arguments
 function strong(txt) {
@@ -29,7 +29,6 @@ function renderUserInfos(ctrl) {
           if (d.user.history[i]) rating += d.user.history[i][1];
           slots[historySize - 1 - i] = rating;
         }
-        console.log(slots);
         jQuery(el).sparkline(slots, {
           type: 'line',
           width: '213px',
@@ -131,9 +130,7 @@ function renderResult(ctrl) {
 function renderSide(ctrl) {
   return m('div.side', [
     renderTrainingBox(ctrl),
-    ctrl.data.difficulty ? renderDifficulty(ctrl) : null,
-    renderCommentary(ctrl),
-    renderResult(ctrl)
+    ctrl.data.difficulty ? renderDifficulty(ctrl) : null
   ]);
 }
 
@@ -207,6 +204,8 @@ function renderViewTable(ctrl) {
       )
     ]),
     m('div.continue_wrap', [
+      renderCommentary(ctrl),
+      renderResult(ctrl),
       ctrl.data.win === null ? m('button.continue.button.text[data-icon=G]', {
         onclick: partial(xhr.newPuzzle, ctrl)
       }, ctrl.trans('continueTraining')) : m('a.continue.button.text[data-icon=G]', {
@@ -258,16 +257,22 @@ function renderFooter(ctrl) {
 
 function renderHistory(ctrl) {
   var d = ctrl.data
-  var slots = new Array(historySize);
-  for (var i in d.user.history) slots[i] = d.user.history[i];
+  var slots = [];
+  for (var i = 0; i < historySize; i++) slots[i] = d.user.history[i] || null;
   return m('div.history', [
-    m('div.timeline',
+    m('div.timeline', [
       slots.map(function(s) {
-        return m('a', {
+        if (s) return m('a', {
           class: s[1] >= 0 ? 'win' : 'loss',
           href: '/training/' + s[0]
         }, s[1] > 0 ? '+' + s[1] : s[1]);
-      }))
+        return m('span', ' ');
+      }),
+      m('a', {
+        class: 'new',
+        href: '/training'
+      }, '+')
+    ])
   ]);
 }
 
@@ -281,7 +286,7 @@ function wheel(ctrl, e) {
 }
 
 module.exports = function(ctrl) {
-  return m('div#puzzle.training', [
+  return m('div#puzzle', [
     renderSide(ctrl),
     m('div.board_and_ground', [
       m('div', {
