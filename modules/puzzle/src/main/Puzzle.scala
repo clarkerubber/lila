@@ -4,8 +4,6 @@ import chess.Color
 import chess.format.{ Uci, Forsyth }
 import org.joda.time.DateTime
 
-import lila.rating.Perf
-
 case class Puzzle(
     id: PuzzleId,
     gameId: String,
@@ -15,7 +13,7 @@ case class Puzzle(
     depth: Int,
     color: Color,
     date: DateTime,
-    perf: Perf,
+    perf: PuzzlePerf,
     vote: AggregateVote,
     attempts: Int,
     mate: Boolean,
@@ -42,7 +40,7 @@ case class Puzzle(
     } yield Forsyth >> sit2
   }
 
-  def visibleTags: List[TagVoted] = tags.filter(_.sum > 2)
+  def visibleTags: List[TagVoted] = tags.filter(_.vote.sum > 2)
 
   def withTagVote(f: List[TagVoted] => List[TagVoted]) = copy(tags = f(tags))
 
@@ -66,7 +64,7 @@ object Puzzle {
     depth = Line minDepth lines,
     color = color,
     date = DateTime.now,
-    perf = Perf.default,
+    perf = PuzzlePerf.default,
     vote = AggregateVote.default,
     attempts = 0,
     mate = mate,
@@ -107,9 +105,10 @@ object Puzzle {
       case BSONDocument(id -> BSONDocument("up" -> up, "down" -> down)) => TagVoted(Tag.byId(id), TagAggregateVote(up, down))
       case _ => throw new Exception(s"malformed BSONDocument")
     }*/
-    def write(tags: List[TagVoted]): BSONDocument = BSONDocument(tags map {
-      t => BSONDocument(t.tag.id -> BSONDocument("up" -> t.vote.up, "down" -> t.vote.down))
-    })
+    def write(tags: List[TagVoted]): BSONDocument = ???
+      // BSONDocument(tags map {
+      //   t => BSONDocument(t.tag.id -> BSONDocument("up" -> t.vote.up, "down" -> t.vote.down))
+      // })
   }
 
   object BSONFields {
@@ -135,7 +134,7 @@ object Puzzle {
   implicit val puzzleBSONHandler = new BSON[Puzzle] {
 
     import BSONFields._
-    import Perf.perfBSONHandler
+    import PuzzlePerf.puzzlePerfBSONHandler
     import AggregateVote.aggregatevoteBSONHandler
 
     def reads(r: BSON.Reader): Puzzle = Puzzle(
@@ -147,10 +146,11 @@ object Puzzle {
       depth = r int depth,
       color = Color(r bool white),
       date = r date date,
-      perf = r.get[Perf](perf),
+      perf = r.get[PuzzlePerf](perf),
       vote = r.get[AggregateVote](vote),
       attempts = r int attempts,
-      mate = r bool mate)
+      mate = r bool mate,
+      tags = ???)
 
     def writes(w: BSON.Writer, o: Puzzle) = BSONDocument(
       id -> o.id,
@@ -164,6 +164,7 @@ object Puzzle {
       perf -> o.perf,
       vote -> o.vote,
       attempts -> o.attempts,
-      mate -> o.mate)
+      mate -> o.mate,
+      tags -> ???)
   }
 }
