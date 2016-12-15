@@ -3,6 +3,7 @@ package lila.puzzle
 import chess.Color
 import chess.format.{ Uci, Forsyth }
 import org.joda.time.DateTime
+import lila.puzzle.tag._
 
 case class Puzzle(
     id: PuzzleId,
@@ -39,8 +40,6 @@ case class Puzzle(
       sit2 <- sit1.move(initialMove).toOption.map(_.situationAfter)
     } yield Forsyth >> sit2
   }
-
-  def visibleTags: List[TagVoted] = tags.value.filter(_.visible)
 
   def withTagVote(f: List[TagVoted] => List[TagVoted]) = copy(tags = TagVoteds(f(tags.value)))
 

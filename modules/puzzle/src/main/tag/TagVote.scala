@@ -1,4 +1,6 @@
-package lila.puzzle
+package lila.puzzle.tag
+
+import lila.puzzle.PuzzleId
 
 case class TagVote(
   _id: String, // puzzleId/tagId/userId

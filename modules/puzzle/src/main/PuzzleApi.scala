@@ -10,6 +10,7 @@ import reactivemongo.api.collections.bson.BSONBatchCommands.AggregationFramework
 import lila.db.dsl._
 import lila.user.{ User, UserRepo }
 import Puzzle.{BSONFields => F}
+import lila.puzzle.tag.{Tag, TagVote}
 
 private[puzzle] final class PuzzleApi(
     puzzleColl: Coll,
@@ -154,6 +155,7 @@ private[puzzle] final class PuzzleApi(
     }
 */
   }
+
   object head {
 
     def find(user: User): Fu[Option[PuzzleHead]] = headColl.byId[PuzzleHead](user.id)

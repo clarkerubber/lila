@@ -1,4 +1,4 @@
-package lila.puzzle
+package lila.puzzle.tag
 
 import org.specs2.mutable._
 import org.specs2.specification._
@@ -11,8 +11,8 @@ import lila.db.dsl._
 
 class BSONHandlersTest extends Specification {
 
-  "TagVoteds" should {
-    import BSONHandlers.tagVotedsBSONHandler._
+  "Tags" should {
+    import BSONHandlers.tagsBSONHandler._
     "write" in {
       val scala = TagVoteds(List(
         TagVoted(
@@ -23,15 +23,35 @@ class BSONHandlersTest extends Specification {
           TagAggregateVote(10, 3))
       ))
       val mongo = $doc(
-        "fork" -> $doc(
+        "Fork" -> $doc(
           "up" -> 5,
           "down" -> 2
         ),
-        "overload" -> $doc(
+        "Overload" -> $doc(
           "up" -> 10,
           "down" -> 3
         ))
       write(scala) must_== mongo
+    }
+    "read" in {
+      val scala = TagVoteds(List(
+        TagVoted(
+          Tag.Fork,
+          TagAggregateVote(5, 2)),
+        TagVoted(
+          Tag.Overload,
+          TagAggregateVote(10, 3))
+      ))
+      val mongo = $doc(
+        "Fork" -> $doc(
+          "up" -> 5,
+          "down" -> 2
+        ),
+        "Overload" -> $doc(
+          "up" -> 10,
+          "down" -> 3
+        ))
+      read(mongo) must_== scala
     }
   }
 }

@@ -1,4 +1,4 @@
-package lila.puzzle
+package lila.puzzle.tag
 
 sealed abstract class Tag(
   val name: Tag.Name,
@@ -38,7 +38,7 @@ object Tag {
   
   case object Interference extends Tag(
     name = "Interference",
-    desc = "Thwart your opponent's attack or defense usually by sacrificing a piece")
+    desc = "Block communication between an opponent's pieces and squares they control by inserting a piece")
   
   case object Pin extends Tag(
     name = "Exploiting a Pin",
@@ -87,8 +87,6 @@ object Tag {
   val all: List[Tag] = List(Zugzwang, Desperado, Zwischenzug, UnderPromotion, Promotion, BackRank, TrappedPiece,
     ShelterDestruction, SmotheredMate, SmotheredMate, Skewer, Pin, Interference, Overload, Deflection, DiscoveredAttack,
     RemovingDefender, HangingMaterial, Fork)
-
-  val alphabetised: List[Tag] = all.sortWith(_.id < _.id)
 
   def byId(id: String): Option[Tag] = all.find(_.id == id)
 

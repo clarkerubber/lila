@@ -1,4 +1,4 @@
-package lila.puzzle
+package lila.puzzle.tag
 
 case class TagAggregateVote(up: Int, down: Int) {
 
