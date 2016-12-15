@@ -8,6 +8,7 @@ import org.joda.time.DateTime
 
 import lila.db.dsl._
 import Puzzle.{BSONFields => F}
+import lila.puzzle.BSONHandlers._
 
 private[puzzle] final class Daily(
     coll: Coll,

@@ -1,4 +1,4 @@
-package lila.puzzle.tag
+package lila.puzzle
 
 import org.specs2.mutable._
 import org.specs2.specification._
@@ -8,6 +8,8 @@ import reactivemongo.bson._
 import lila.db.BSON
 import lila.db.BSON.{ Reader, Writer }
 import lila.db.dsl._
+
+import lila.puzzle.tag._
 
 class BSONHandlersTest extends Specification {
 

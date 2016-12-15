@@ -10,7 +10,7 @@ import reactivemongo.api.collections.bson.BSONBatchCommands.AggregationFramework
 import lila.db.dsl._
 import lila.user.{ User, UserRepo }
 import Puzzle.{BSONFields => F}
-import lila.puzzle.tag.{Tag, TagVote}
+import lila.puzzle.tag.{ Tag, TagVote }
 
 private[puzzle] final class PuzzleApi(
     puzzleColl: Coll,
@@ -22,7 +22,7 @@ private[puzzle] final class PuzzleApi(
     puzzleIdMin: PuzzleId,
     apiToken: String) {
 
-  import Puzzle.puzzleBSONHandler
+  import lila.puzzle.BSONHandlers.puzzleBSONHandler
 
   object puzzle {
 

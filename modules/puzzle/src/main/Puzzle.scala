@@ -27,7 +27,6 @@ case class Puzzle(
     }
   } | 0
 
-  // (1 - 3)/(1 + 3) = -0.5
   def enabled = vote.ratio > AggregateVote.minRatio || vote.nb < AggregateVote.minVotes
 
   def withVote(f: AggregateVote => AggregateVote) = copy(vote = f(vote))
@@ -69,36 +68,6 @@ object Puzzle {
     mate = mate,
     tags = TagVoteds(Nil))
 
-  import reactivemongo.bson._
-  import lila.db.BSON
-  import BSON.BSONJodaDateTimeHandler
-  private implicit val lineBSONHandler = new BSONHandler[BSONDocument, Lines] {
-    private def readMove(move: String) = chess.Pos.doublePiotrToKey(move take 2) match {
-      case Some(m) => s"$m${move drop 2}"
-      case _       => sys error s"Invalid piotr move notation: $move"
-    }
-    def read(doc: BSONDocument): Lines = doc.elements.toList map {
-      case BSONElement(move, BSONBoolean(true))  => Win(readMove(move))
-
-      case BSONElement(move, BSONBoolean(false)) => Retry(readMove(move))
-
-      case BSONElement(move, more: BSONDocument) =>
-        Node(readMove(move), read(more))
-
-      case BSONElement(move, value) =>
-        throw new Exception(s"Can't read value of $move: $value")
-    }
-    private def writeMove(move: String) = chess.Pos.doubleKeyToPiotr(move take 4) match {
-      case Some(m) => s"$m${move drop 4}"
-      case _       => sys error s"Invalid move notation: $move"
-    }
-    def write(lines: Lines): BSONDocument = BSONDocument(lines map {
-      case Win(move)         => writeMove(move) -> BSONBoolean(true)
-      case Retry(move)       => writeMove(move) -> BSONBoolean(false)
-      case Node(move, lines) => writeMove(move) -> write(lines)
-    })
-  }
-
   object BSONFields {
     val id = "_id"
     val gameId = "gameId"
@@ -117,42 +86,5 @@ object Puzzle {
     val attempts = "attempts"
     val mate = "mate"
     val tags = "tags"
-  }
-
-  implicit val puzzleBSONHandler = new BSON[Puzzle] {
-
-    import BSONFields._
-    import PuzzlePerf.puzzlePerfBSONHandler
-    import AggregateVote.aggregatevoteBSONHandler
-
-    def reads(r: BSON.Reader): Puzzle = Puzzle(
-      id = r int id,
-      gameId = r str gameId,
-      history = r str history split ' ' toList,
-      fen = r str fen,
-      lines = r.get[Lines](lines),
-      depth = r int depth,
-      color = Color(r bool white),
-      date = r date date,
-      perf = r.get[PuzzlePerf](perf),
-      vote = r.get[AggregateVote](vote),
-      attempts = r int attempts,
-      mate = r bool mate,
-      tags = ???)
-
-    def writes(w: BSON.Writer, o: Puzzle) = BSONDocument(
-      id -> o.id,
-      gameId -> o.gameId,
-      history -> o.history.mkString(" "),
-      fen -> o.fen,
-      lines -> o.lines,
-      depth -> o.depth,
-      white -> o.color.white,
-      date -> o.date,
-      perf -> o.perf,
-      vote -> o.vote,
-      attempts -> o.attempts,
-      mate -> o.mate,
-      tags -> ???)
   }
 }

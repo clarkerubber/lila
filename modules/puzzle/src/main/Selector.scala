@@ -12,6 +12,8 @@ private[puzzle] final class Selector(
     api: PuzzleApi,
     puzzleIdMin: Int) {
 
+  import lila.puzzle.BSONHandlers.puzzleBSONHandler
+
   private val toleranceMax = 1000
 
   val anonSkipMax = 5000
