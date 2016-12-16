@@ -11,6 +11,7 @@ import lila.db.dsl._
 import lila.user.{ User, UserRepo }
 import Puzzle.{BSONFields => F}
 import lila.puzzle.tag.{ Tag, TagVote }
+import lila.puzzle.BSONHandlers.{ puzzleBSONHandler, tagsBSONHandler }
 
 private[puzzle] final class PuzzleApi(
     puzzleColl: Coll,
@@ -21,8 +22,6 @@ private[puzzle] final class PuzzleApi(
     headColl: Coll,
     puzzleIdMin: PuzzleId,
     apiToken: String) {
-
-  import lila.puzzle.BSONHandlers.puzzleBSONHandler
 
   object puzzle {
 
@@ -144,16 +143,31 @@ private[puzzle] final class PuzzleApi(
   object voteTag {
 
     def find(id: PuzzleId, tag: Tag, user: User): Fu[Option[TagVote]] = tagVoteColl.byId[TagVote](TagVote.makeId(id, tag.id, user.id))
-/*
-    def update(id: PuzzleId, tag: Tag, user: User, v1: Option[Vote], v: Boolean): Fu[(Puzzle, TagVote)] = puzzle find id flatMap {
+
+    def update(id: PuzzleId, tag: Tag, user: User, v1: Option[TagVote], v: Boolean): Fu[(Puzzle, TagVote)] = puzzle find id flatMap {
       case None => fufail(s"Can't tag vote for non existing puzzle ${id}")
-      case Some(p1) =>
+      case Some(p1) => 
         val (p2, v2) = v1 match {
           case Some(from) => (
-            (p1 ))
+            p1 withTagVote(tag, from.value.some, v),
+            from.copy(v = v)
+          )
+          case None => (
+            p1 withTagVote(tag, none, v),
+            TagVote(TagVote.makeId(id, tag.id, user.id), v)
+          )
         }
+        tagVoteColl.update(
+          $id(v2.id),
+          $set("v" -> v),
+          upsert = true) zip
+          puzzleColl.update(
+            $id(p2.id),
+            $set(F.tags -> p2.tags,
+              F.trustedTags -> p2.trustedTagIds)) map {
+              case _ => p2 -> v2
+            }
     }
-*/
   }
 
   object head {

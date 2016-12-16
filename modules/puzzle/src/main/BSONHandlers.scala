@@ -95,6 +95,7 @@ private object BSONHandlers {
       vote -> o.vote,
       attempts -> o.attempts,
       mate -> o.mate,
-      tags -> o.tags)
+      tags -> o.tags,
+      trustedTags -> o.trustedTagIds)
   }
 }

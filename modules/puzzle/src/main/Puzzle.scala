@@ -40,9 +40,11 @@ case class Puzzle(
     } yield Forsyth >> sit2
   }
 
-  def withTagVote(f: List[TagVoted] => List[TagVoted]) = copy(tags = TagVoteds(f(tags.value)))
+  def withTagVote(tag: Tag, from: Option[Boolean], to: Boolean) = copy(tags = tags.change(tag, from, to))
 
   def trustedTags: List[TagVoted] = tags.value.filter(_.trusted)
+
+  def trustedTagIds: List[String] = trustedTags map(_.tag.id)
 }
 
 object Puzzle {
@@ -86,5 +88,6 @@ object Puzzle {
     val attempts = "attempts"
     val mate = "mate"
     val tags = "tags"
+    val trustedTags = "trustedTags"
   }
 }
