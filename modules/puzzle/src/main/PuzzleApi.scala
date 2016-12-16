@@ -147,16 +147,12 @@ private[puzzle] final class PuzzleApi(
     def update(id: PuzzleId, tag: Tag, user: User, v1: Option[TagVote], v: Boolean): Fu[(Puzzle, TagVote)] = puzzle find id flatMap {
       case None => fufail(s"Can't tag vote for non existing puzzle ${id}")
       case Some(p1) => 
-        val (p2, v2) = v1 match {
-          case Some(from) => (
-            p1 withTagVote(tag, from.value.some, v),
-            from.copy(v = v)
-          )
-          case None => (
-            p1 withTagVote(tag, none, v),
-            TagVote(TagVote.makeId(id, tag.id, user.id), v)
-          )
-        }
+        val (p2, v2) = (
+          p1.withTagVote(tag, v1, v),
+          v1 match {
+            case Some(from) => from.copy(v = v)
+            case None => TagVote(TagVote.makeId(id, tag.id, user.id), v)
+          })
         tagVoteColl.update(
           $id(v2.id),
           $set("v" -> v),

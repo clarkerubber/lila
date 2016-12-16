@@ -40,7 +40,7 @@ case class Puzzle(
     } yield Forsyth >> sit2
   }
 
-  def withTagVote(tag: Tag, from: Option[Boolean], to: Boolean) = copy(tags = tags.change(tag, from, to))
+  def withTagVote(tag: Tag, from: Option[TagVote], to: Boolean) = copy(tags = tags.change(tag, from, to))
 
   def trustedTags: List[TagVoted] = tags.value.filter(_.trusted)
 
